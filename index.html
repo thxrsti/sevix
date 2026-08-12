@@ -95,7 +95,7 @@ button,input,textarea{font:inherit}.app{display:flex;height:100vh}
     <div class="channel-title">TEXT CHANNELS</div>
     <div class="channel active"># general</div><div class="channel"># gaming</div><div class="channel"># memes</div>
     <div class="channel-title">VOICE CHANNELS</div>
-    <div class="channel" onclick="joinVoiceChannel('General')">🔊 General</div>
+    <div class="channel">🔊 General</div><div class="channel">🔊 Gaming</div>
   </div>
   <div class="chat">
     <div class="chat-header"><span>#</span> general
@@ -158,33 +158,11 @@ function fmtSize(n){if(!n)return '';if(n<1024)return n+' B';if(n<1048576)return 
 function openModal(id){$(id).classList.add('open')}function closeModal(id){$(id).classList.remove('open')}
 function updateAuthUI(){$('authBtn').textContent=session?'LOG OUT':'LOGIN'}
 
-let currentVoiceChannel = null;  async function joinVoiceChannel(channelName){      if(!session){         openModal('authModal');         return;     }      if(currentVoiceChannel){         await leaveVoiceChannel();     }      const {error} = await sb         .from('voice_members')         .insert({             channel_name: channelName,             user_id: session.user.id         });      if(error){         console.error(error);         alert(error.message);         return;     }      currentVoiceChannel = channelName;      alert('You joined 🔊 ' + channelName); }(channelName){
-    alert('You selected the ' + channelName + ' voice channel!');
-}async function loadProfile(){
+async function loadProfile(){
   if(!session){profile=null;return}
   const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
   if(error){console.error(error);return}
   profile=data;
-}
-
-    async function leaveVoiceChannel(){
-
-    if(!session || !currentVoiceChannel){
-        return;
-    }
-
-    const {error} = await sb
-        .from('voice_members')
-        .delete()
-        .eq('channel_name', currentVoiceChannel)
-        .eq('user_id', session.user.id);
-
-    if(error){
-        console.error(error);
-        return;
-    }
-
-    currentVoiceChannel = null;
 }
 async function loadMembers(){
   const {data,error}=await sb
