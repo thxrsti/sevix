@@ -167,7 +167,7 @@ async function loadProfile(){
 async function openMemberProfile(userId){
     const {data,error}=await sb
         .from('profiles')
-        .select('username,avatar_url,bio,status')
+        .select('username,avatar_url,bio,status,banner_url')
         .eq('id',userId)
         .maybeSingle();
 
@@ -201,7 +201,14 @@ if(data.avatar_url){
     avatar.textContent =
         (data.username || '?')[0].toUpperCase();
 }
+const banner = document.getElementById('memberProfileBanner');
 
+if(data.banner_url){
+    banner.style.backgroundImage = `url("${data.banner_url}")`;
+}else{
+    banner.style.backgroundImage =
+        'linear-gradient(135deg,#18265c,#101020)';
+}
 modal.style.display = 'flex';(
         data.username +
         "\n\nStatus: " + (data.status || 'online') +
@@ -959,9 +966,10 @@ animateSky();
         box-shadow:0 20px 60px rgba(0,0,0,.6);
     ">
 
-        <div style="
+        <div id="memberProfileBanner" style="
             height:110px;
-            background:linear-gradient(135deg,#18265c,#101020);
+            background:linear-gradient(135deg,#18265c,#101020);background-size:cover;
+background-position:center;
         "></div>
 
         <div style="padding:0 20px 20px;">
