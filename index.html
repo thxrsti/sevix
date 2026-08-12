@@ -50,9 +50,44 @@ button,input,textarea{font:inherit}.app{display:flex;height:100vh}
     object-fit: cover !important;
     border-radius: 50% !important;
     display: block !important;
+}/* ===== SEVIX ANIME NIGHT SKY ===== */
+
+#nightSky {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -10;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 100%, #172d70 0%, #08132f 45%, #02040d 100%);
+}
+
+/* Make the Sevix panels slightly transparent */
+.servers,
+.channels,
+.members {
+    background: rgba(7, 8, 18, 0.78);
+    backdrop-filter: blur(8px);
+}
+
+.chat {
+    background: rgba(8, 9, 18, 0.58);
+    backdrop-filter: blur(4px);
+}
+
+.chat-header {
+    background: rgba(5, 6, 14, 0.45);
+}
+
+.chat-input {
+    background: rgba(5, 6, 14, 0.35);
 }</style>
 </head>
 <body>
+
+<canvas id="nightSky"></canvas>
+
 <div class="app">
   <div class="servers"><div class="server active">S</div><div class="server">+</div></div>
   <div class="channels">
@@ -345,5 +380,155 @@ $('messageForm').onsubmit=async e=>{
 sb.auth.onAuthStateChange(async(_event,s)=>{session=s;updateAuthUI();if(session){await loadProfile();await loadMembers();await findGeneral()}});
 (async()=>{session=(await sb.auth.getSession()).data.session;updateAuthUI();if(session)await loadProfile();await loadMembers();await findGeneral()})();
 </script>
-</body>
+<script>
+const sky = document.getElementById("nightSky");
+const ctx = sky.getContext("2d");
+
+let stars = [];
+let comets = [];
+
+function resizeSky() {
+    sky.width = window.innerWidth;
+    sky.height = window.innerHeight;
+}
+
+window.addEventListener("resize", resizeSky);
+resizeSky();
+
+/* Stars */
+for (let i = 0; i < 180; i++) {
+    stars.push({
+        x: Math.random() * sky.width,
+        y: Math.random() * sky.height,
+        size: Math.random() * 1.8 + 0.3,
+        alpha: Math.random() * 0.8 + 0.2,
+        speed: Math.random() * 0.015 + 0.005
+    });
+}
+
+/* Create a comet */
+function createComet() {
+    comets.push({
+        x: Math.random() * sky.width,
+        y: -50,
+        length: Math.random() * 100 + 60,
+        speed: Math.random() * 5 + 4,
+        angle: Math.PI / 4,
+        life: 1
+    });
+}
+
+/* New comet every few seconds */
+setInterval(createComet, 1800);
+
+function animateSky() {
+
+    ctx.clearRect(0, 0, sky.width, sky.height);
+
+    /* Stars */
+    for (const star of stars) {
+
+        star.alpha += star.speed;
+
+        if (star.alpha > 1 || star.alpha < 0.15) {
+            star.speed *= -1;
+        }
+
+        ctx.beginPath();
+
+        ctx.arc(
+            star.x,
+            star.y,
+            star.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            `rgba(170,205,255,${star.alpha})`;
+
+        ctx.fill();
+    }
+
+    /* Comets */
+    for (let i = comets.length - 1; i >= 0; i--) {
+
+        const comet = comets[i];
+
+        comet.x += Math.cos(comet.angle) * comet.speed;
+        comet.y += Math.sin(comet.angle) * comet.speed;
+
+        comet.life -= 0.004;
+
+        const tailX =
+            comet.x -
+            Math.cos(comet.angle) * comet.length;
+
+        const tailY =
+            comet.y -
+            Math.sin(comet.angle) * comet.length;
+
+        const gradient =
+            ctx.createLinearGradient(
+                comet.x,
+                comet.y,
+                tailX,
+                tailY
+            );
+
+        gradient.addColorStop(
+            0,
+            `rgba(120,200,255,${comet.life})`
+        );
+
+        gradient.addColorStop(
+            0.4,
+            `rgba(80,130,255,${comet.life * 0.5})`
+        );
+
+        gradient.addColorStop(
+            1,
+            "rgba(20,40,120,0)"
+        );
+
+        ctx.beginPath();
+
+        ctx.moveTo(comet.x, comet.y);
+        ctx.lineTo(tailX, tailY);
+
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 3;
+
+        ctx.stroke();
+
+        /* Bright comet head */
+        ctx.beginPath();
+
+        ctx.arc(
+            comet.x,
+            comet.y,
+            3,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            `rgba(210,240,255,${comet.life})`;
+
+        ctx.fill();
+
+        if (
+            comet.life <= 0 ||
+            comet.x > sky.width + 200 ||
+            comet.y > sky.height + 200
+        ) {
+            comets.splice(i, 1);
+        }
+    }
+
+    requestAnimationFrame(animateSky);
+}
+
+animateSky();
+</script></body>
 </html>
