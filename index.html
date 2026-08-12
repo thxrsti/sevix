@@ -1,403 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sevix</title>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
-
-body {
-    background: #0b0b10;
-    color: white;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.app {
-    display: flex;
-    height: 100vh;
-}
-
-/* SERVER BAR */
-
-.servers {
-    width: 72px;
-    background: #08080c;
-    padding: 12px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    border-right: 1px solid #1b1b24;
-}
-
-.server {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    background: #181822;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.server:hover {
-    border-radius: 12px;
-    background: #6d5dfc;
-}
-
-.server.active {
-    background: #6d5dfc;
-}
-
-/* CHANNEL BAR */
-
-.channels {
-    width: 240px;
-    background: #111118;
-    border-right: 1px solid #1b1b24;
-    display: flex;
-    flex-direction: column;
-}
-
-.server-name {
-    height: 60px;
-    padding: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    border-bottom: 1px solid #1b1b24;
-}
-
-.channel-title {
-    padding: 20px 15px 8px;
-    color: #77778a;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.channel {
-    padding: 10px 18px;
-    color: #a6a6b5;
-    cursor: pointer;
-}
-
-.channel:hover,
-.channel.active {
-    background: #1c1c27;
-    color: white;
-}
-
-/* MAIN CHAT */
-
-.chat {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #0e0e14;
-}
-
-.chat-header {
-    height: 60px;
-    border-bottom: 1px solid #1b1b24;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    font-weight: bold;
-}
-
-.chat-header span {
-    color: #77778a;
-    margin-right: 8px;
-}
-
-.messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.message {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 18px;
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #6d5dfc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.message-name {
-    font-weight: bold;
-}
-
-.message-time {
-    color: #666675;
-    font-size: 11px;
-    margin-left: 8px;
-}
-
-.message-text {
-    color: #c4c4cf;
-    margin-top: 4px;
-}
-
-.chat-input {
-    padding: 15px 20px;
-}
-
-.chat-input input {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    background: #191922;
-    color: white;
-}
-
-/* MEMBERS */
-
-.members {
-    width: 220px;
-    background: #111118;
-    border-left: 1px solid #1b1b24;
-    padding: 20px 15px;
-}
-
-.members-title {
-    color: #77778a;
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-.member {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.member-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #272733;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.online {
-    color: #55d68a;
-    font-size: 10px;
-}
-
-/* MOBILE */
-
-@media(max-width:900px) {
-    .members {
-        display: none;
-    }
-}
-
-@media(max-width:650px) {
-    .channels {
-        display: none;
-    }
-
-    .servers {
-        width: 60px;
-    }
-}
+*{box-sizing:border-box}body{margin:0;background:#0b0b10;color:#fff;font-family:Arial,sans-serif;height:100vh;overflow:hidden}.app{display:flex;height:100vh}
+.servers{width:72px;background:#08080c;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:12px;border-right:1px solid #1b1b24}.server{width:48px;height:48px;border-radius:16px;background:#181822;display:grid;place-items:center;font-weight:bold;cursor:pointer}.server.active,.server:hover{background:#6d5dfc;border-radius:12px}
+.channels{width:240px;background:#111118;border-right:1px solid #1b1b24}.server-name{height:60px;padding:20px;font-size:18px;font-weight:bold;border-bottom:1px solid #1b1b24}.channel-title{padding:20px 15px 8px;color:#77778a;font-size:12px;font-weight:bold}.channel{padding:10px 18px;color:#a6a6b5;cursor:pointer}.channel:hover,.channel.active{background:#1c1c27;color:#fff}
+.chat{flex:1;display:flex;flex-direction:column;background:#0e0e14}.chat-header{height:60px;border-bottom:1px solid #1b1b24;display:flex;align-items:center;padding:0 20px;font-weight:bold}.chat-header span{color:#77778a;margin-right:8px}.top-actions{margin-left:auto}.top-actions button{background:#191922;color:#fff;border:1px solid #30303b;border-radius:7px;padding:8px 12px;cursor:pointer}
+.messages{flex:1;padding:20px;overflow-y:auto}.message{display:flex;gap:12px;margin-bottom:18px}.avatar,.member-avatar{background:#6d5dfc;border-radius:50%;display:grid;place-items:center;font-weight:bold;flex:none}.avatar{width:40px;height:40px}.member-avatar{width:32px;height:32px}.message-name{font-weight:bold}.message-time{color:#666675;font-size:11px;margin-left:8px}.message-text{color:#c4c4cf;margin-top:4px}.chat-input{padding:15px 20px}.chat-input form{display:flex;gap:8px}.chat-input input{flex:1;padding:14px;border-radius:8px;border:0;outline:0;background:#191922;color:#fff}.send{border:0;border-radius:8px;padding:0 18px;background:#6d5dfc;color:#fff;font-weight:bold;cursor:pointer}
+.members{width:220px;background:#111118;border-left:1px solid #1b1b24;padding:20px 15px}.members-title{color:#77778a;font-size:12px;font-weight:bold;margin-bottom:15px}.member{display:flex;align-items:center;gap:10px;margin-bottom:15px}.online{color:#55d68a;font-size:10px}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:center;justify-content:center}.modal.open{display:flex}.box{width:min(420px,90%);background:#111118;border:1px solid #30303b;border-radius:12px;padding:24px}.box h2{margin:0 0 16px}.box input{width:100%;margin:7px 0;padding:12px;background:#191922;border:1px solid #30303b;border-radius:7px;color:#fff}.box button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:7px;background:#6d5dfc;color:#fff;font-weight:bold;cursor:pointer}.box .secondary{background:#191922}.error{color:#ff6570;margin-top:10px;font-size:13px}
+@media(max-width:900px){.members{display:none}}@media(max-width:650px){.channels{display:none}.servers{width:60px}}
 </style>
 </head>
-
 <body>
-
 <div class="app">
-
-    <!-- SERVERS -->
-
-    <div class="servers">
-
-        <div class="server active">
-            S
-        </div>
-
-        <div class="server">
-            +
-        </div>
-
-    </div>
-
-    <!-- CHANNELS -->
-
-    <div class="channels">
-
-        <div class="server-name">
-            SEVIX
-        </div>
-
-        <div class="channel-title">
-            TEXT CHANNELS
-        </div>
-
-        <div class="channel active">
-            # general
-        </div>
-
-        <div class="channel">
-            # gaming
-        </div>
-
-        <div class="channel">
-            # memes
-        </div>
-
-        <div class="channel-title">
-            VOICE CHANNELS
-        </div>
-
-        <div class="channel">
-            🔊 General
-        </div>
-
-        <div class="channel">
-            🔊 Gaming
-        </div>
-
-    </div>
-
-    <!-- CHAT -->
-
-    <div class="chat">
-
-        <div class="chat-header">
-            <span>#</span> general
-        </div>
-
-        <div class="messages">
-
-            <div class="message">
-
-                <div class="avatar">
-                    S
-                </div>
-
-                <div>
-
-                    <div>
-                        <span class="message-name">
-                            Sevix
-                        </span>
-
-                        <span class="message-time">
-                            Today at 13:15
-                        </span>
-                    </div>
-
-                    <div class="message-text">
-                        Welcome to Sevix! 👋
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="message">
-
-                <div class="avatar">
-                    R
-                </div>
-
-                <div>
-
-                    <div>
-                        <span class="message-name">
-                            rAiN
-                        </span>
-
-                        <span class="message-time">
-                            Today at 13:16
-                        </span>
-                    </div>
-
-                    <div class="message-text">
-                        This is going to be sick 🔥
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="chat-input">
-
-            <input
-                type="text"
-                placeholder="Message #general"
-            >
-
-        </div>
-
-    </div>
-
-    <!-- MEMBERS -->
-
-    <div class="members">
-
-        <div class="members-title">
-            ONLINE — 2
-        </div>
-
-        <div class="member">
-
-            <div class="member-avatar">
-                S
-            </div>
-
-            <div>
-                <div>Sevix</div>
-                <div class="online">● Online</div>
-            </div>
-
-        </div>
-
-        <div class="member">
-
-            <div class="member-avatar">
-                R
-            </div>
-
-            <div>
-                <div>rAiN</div>
-                <div class="online">● Online</div>
-            </div>
-
-        </div>
-
-    </div>
-
+<div class="servers"><div class="server active">S</div><div class="server">+</div></div>
+<div class="channels"><div class="server-name">SEVIX</div><div class="channel-title">TEXT CHANNELS</div><div class="channel active"># general</div><div class="channel"># gaming</div><div class="channel"># memes</div><div class="channel-title">VOICE CHANNELS</div><div class="channel">🔊 General</div><div class="channel">🔊 Gaming</div></div>
+<div class="chat"><div class="chat-header"><span>#</span> general<div class="top-actions"><button id="authBtn">LOGIN</button></div></div><div id="messages" class="messages"></div><div class="chat-input"><form id="messageForm"><input id="messageInput" maxlength="500" placeholder="Message #general"><button class="send">SEND</button></form></div></div>
+<div class="members"><div class="members-title" id="membersTitle">MEMBERS — 0</div><div id="membersList"></div></div>
 </div>
+<div class="modal" id="authModal"><div class="box"><h2 id="authTitle">Login to Sevix</h2><input id="displayName" placeholder="Display name" style="display:none"><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button id="authSubmit">LOGIN</button><button id="switchAuth" class="secondary">Create an account</button><div id="authError" class="error"></div></div></div>
+<script>
+const SUPABASE_URL='https://ctjmlzcghygeyaheiefn.supabase.co';
+const SUPABASE_KEY='sb_publishable_YeRe8DwJGeQt10muYTVtUA_GsNXO3dL';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let session=null,profile=null,currentChannel=null,isSignup=false;
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function openAuth(){ $('authModal').classList.add('open'); $('authError').textContent=''; }
+function closeAuth(){ $('authModal').classList.remove('open'); }
+function updateAuthUI(){ $('authBtn').textContent=session?'LOG OUT':'LOGIN'; }
 
+async function loadProfile(){
+ if(!session){profile=null;return;}
+ const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+ if(error){console.error(error);return}
+ profile=data;
+}
+async function loadMembers(){
+ const {data,error}=await sb.from('profiles').select('id,username,avatar_url,status').order('username');
+ if(error){console.error(error);return}
+ $('membersTitle').textContent=`MEMBERS — ${(data||[]).length}`;
+ $('membersList').innerHTML=(data||[]).map(p=>`<div class="member"><div class="member-avatar">${esc((p.username||'?')[0].toUpperCase())}</div><div><div>${esc(p.username||'User')}</div><div class="online">● ${esc(p.status||'online')}</div></div></div>`).join('');
+}
+async function loadMessages(){
+ if(!currentChannel){$('messages').innerHTML='<div style="color:#777">No text channel is configured yet.</div>';return}
+ const {data,error}=await sb.from('messages').select('id,content,user_id,created_at,profiles(username,avatar_url)').eq('channel_id',currentChannel).order('created_at',{ascending:true}).limit(100);
+ if(error){console.error(error);$('messages').innerHTML='<div style="color:#ff6570">Could not load messages.</div>';return}
+ $('messages').innerHTML=(data||[]).map(m=>`<div class="message"><div class="avatar">${esc((m.profiles?.username||'?')[0].toUpperCase())}</div><div><div><span class="message-name">${esc(m.profiles?.username||'User')}</span><span class="message-time">${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></div><div class="message-text">${esc(m.content)}</div></div></div>`).join('');
+ $('messages').scrollTop=$('messages').scrollHeight;
+}
+async function findGeneral(){
+ const {data,error}=await sb.from('channels').select('id,name,type').eq('name','general').eq('type','text').limit(1).maybeSingle();
+ if(error){console.error(error);return}
+ if(data)currentChannel=data.id;
+ await loadMessages();
+}
+async function finishLogin(){
+ await loadProfile();closeAuth();updateAuthUI();await loadMembers();await findGeneral();
+}
+async function signIn(){
+ const email=$('email').value.trim(),password=$('password').value;
+ const {data,error}=await sb.auth.signInWithPassword({email,password});
+ if(error){$('authError').textContent=error.message;return}
+ session=data.session;await finishLogin();
+}
+async function signUp(){
+ const display=$('displayName').value.trim(),email=$('email').value.trim(),password=$('password').value;
+ if(!display){$('authError').textContent='Enter a display name.';return}
+ const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:display}}});
+ if(error){$('authError').textContent=error.message;return}
+ if(!data.session){
+   const {data:loginData,error:loginError}=await sb.auth.signInWithPassword({email,password});
+   if(loginError){$('authError').textContent=loginError.message;return}
+   session=loginData.session;
+ }else session=data.session;
+ const {data:existing}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+ if(!existing){
+   const {data:p,error:pError}=await sb.from('profiles').insert({id:session.user.id,username:display,avatar_url:'',status:'online'}).select().single();
+   if(pError){$('authError').textContent=pError.message;return}
+   profile=p;
+ }else{
+   const {data:p,error:pError}=await sb.from('profiles').update({username:display,status:'online'}).eq('id',session.user.id).select().single();
+   if(pError){$('authError').textContent=pError.message;return}
+   profile=p;
+ }
+ await finishLogin();
+}
+$('authBtn').onclick=async()=>{if(session){await sb.auth.signOut();session=null;profile=null;updateAuthUI();await loadMembers();}else openAuth();};
+$('switchAuth').onclick=()=>{
+ isSignup=!isSignup;
+ $('authTitle').textContent=isSignup?'Create your Sevix account':'Login to Sevix';
+ $('authSubmit').textContent=isSignup?'CREATE ACCOUNT':'LOGIN';
+ $('displayName').style.display=isSignup?'block':'none';
+ $('switchAuth').textContent=isSignup?'Back to login':'Create an account';
+ $('authError').textContent='';
+ $('authSubmit').onclick=isSignup?signUp:signIn;
+};
+$('authSubmit').onclick=signIn;
+$('messageForm').onsubmit=async e=>{
+ e.preventDefault();
+ if(!session){openAuth();return}
+ if(!currentChannel){alert('The general channel has not been created yet.');return}
+ const content=$('messageInput').value.trim();if(!content)return;
+ const {error}=await sb.from('messages').insert({channel_id:currentChannel,user_id:session.user.id,content});
+ if(error){alert(error.message);return}
+ $('messageInput').value='';await loadMessages();
+};
+sb.auth.onAuthStateChange(async(_event,s)=>{session=s;updateAuthUI();if(session){await loadProfile();await loadMembers();}});
+(async()=>{session=(await sb.auth.getSession()).data.session;updateAuthUI();await loadMembers();await findGeneral();})();
+</script>
 </body>
 </html>
