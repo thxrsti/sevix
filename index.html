@@ -209,9 +209,34 @@ async function openMemberProfile(userId){
         return;
     }
 
-    if(!data)return;
+    if(!data)return;$('memberName').textContent = data.username || 'User';
 
-    alert(
+$('memberRole').textContent =
+    'Role: ' + ((data.role || 'member').replace('_',' ')).toUpperCase();
+
+$('memberStatus').textContent =
+    '● ' + (data.custom_status || data.status || 'online');
+
+$('memberBio').textContent =
+    data.bio || 'No bio yet.';
+
+if(data.avatar_url){
+    $('memberAvatar').innerHTML =
+        `<img src="${esc(data.avatar_url)}"
+              style="width:100%;height:100%;object-fit:cover;">`;
+}else{
+    $('memberAvatar').textContent =
+        (data.username || '?')[0].toUpperCase();
+}
+
+if(data.banner_url){
+    $('memberBanner').style.backgroundImage =
+        `url("${data.banner_url}")`;
+}
+
+openModal('memberProfileModal');
+
+    (
         data.username +
         "\nRole: " +
         (data.role || 'member')
@@ -940,5 +965,84 @@ function animateSky() {
 resizeSky();
 
 animateSky();
-</script></body>
+</script><div class="modal" id="memberProfileModal">
+    <div class="box" style="padding:0;overflow:hidden;max-width:420px;">
+
+        <div id="memberBanner"
+             style="
+                height:120px;
+                background:linear-gradient(135deg,#6d5dfc,#111118);
+                background-size:cover;
+                background-position:center;
+             ">
+        </div>
+
+        <div style="padding:20px;">
+
+            <div id="memberAvatar"
+                 style="
+                    width:80px;
+                    height:80px;
+                    margin-top:-55px;
+                    border-radius:50%;
+                    border:4px solid #111118;
+                    background:#6d5dfc;
+                    overflow:hidden;
+                    display:grid;
+                    place-items:center;
+                    font-size:25px;
+                    font-weight:bold;
+                 ">
+            </div>
+
+            <div id="memberName"
+                 style="
+                    font-size:22px;
+                    font-weight:bold;
+                    margin-top:10px;
+                 ">
+            </div>
+
+            <div id="memberRole"
+                 style="
+                    color:#aaaabd;
+                    font-size:12px;
+                    margin-top:5px;
+                 ">
+            </div>
+
+            <div id="memberStatus"
+                 style="
+                    color:#55d68a;
+                    font-size:13px;
+                    margin-top:12px;
+                 ">
+            </div>
+
+            <div id="memberBio"
+                 style="
+                    color:#c4c4cf;
+                    margin-top:15px;
+                    white-space:pre-wrap;
+                 ">
+            </div>
+
+            <button
+                onclick="closeModal('memberProfileModal')"
+                style="
+                    width:100%;
+                    margin-top:20px;
+                    padding:11px;
+                    border:0;
+                    border-radius:7px;
+                    background:#191922;
+                    color:white;
+                    cursor:pointer;
+                ">
+                CLOSE
+            </button>
+
+        </div>
+    </div>
+</div></body>
 </html>
