@@ -174,11 +174,35 @@ async function openMemberProfile(userId){
     if(error){
         console.error(error);
         return;
-    }
+    }function closeMemberProfile(){
+    document.getElementById('memberProfileModal').style.display = 'none';
+}
 
     if(!data)return;
 
-    alert(
+    const modal = document.getElementById('memberProfileModal');
+
+document.getElementById('memberProfileName').textContent =
+    data.username || 'User';
+
+document.getElementById('memberProfileStatus').textContent =
+    '● ' + (data.status || 'online');
+
+document.getElementById('memberProfileBio').textContent =
+    data.bio || 'No bio yet.';
+
+const avatar = document.getElementById('memberProfileAvatar');
+
+if(data.avatar_url){
+    avatar.innerHTML =
+        `<img src="${data.avatar_url}"
+        style="width:100%;height:100%;object-fit:cover;">`;
+}else{
+    avatar.textContent =
+        (data.username || '?')[0].toUpperCase();
+}
+
+modal.style.display = 'flex';(
         data.username +
         "\n\nStatus: " + (data.status || 'online') +
         "\n\n" + (data.bio || 'No bio yet.')
@@ -915,5 +939,90 @@ function animateSky() {
 resizeSky();
 
 animateSky();
-</script></body>
+</script><div id="memberProfileModal"
+     style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.65);
+        z-index:9999;
+        align-items:center;
+        justify-content:center;
+     ">
+
+    <div style="
+        width:380px;
+        background:#11111a;
+        border:1px solid #29293a;
+        border-radius:14px;
+        overflow:hidden;
+        box-shadow:0 20px 60px rgba(0,0,0,.6);
+    ">
+
+        <div style="
+            height:110px;
+            background:linear-gradient(135deg,#18265c,#101020);
+        "></div>
+
+        <div style="padding:0 20px 20px;">
+
+            <div id="memberProfileAvatar"
+                 style="
+                    width:76px;
+                    height:76px;
+                    margin-top:-38px;
+                    border-radius:50%;
+                    border:4px solid #11111a;
+                    background:#6d5dfc;
+                    overflow:hidden;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:26px;
+                    font-weight:bold;
+                 ">
+            </div>
+
+            <div id="memberProfileName"
+                 style="
+                    margin-top:10px;
+                    font-size:22px;
+                    font-weight:bold;
+                 ">
+            </div>
+
+            <div id="memberProfileStatus"
+                 style="
+                    margin-top:5px;
+                    color:#55d68a;
+                    font-size:13px;
+                 ">
+            </div>
+
+            <div id="memberProfileBio"
+                 style="
+                    margin-top:18px;
+                    color:#c5c5d0;
+                    white-space:pre-wrap;
+                 ">
+            </div>
+
+            <button
+                onclick="closeMemberProfile()"
+                style="
+                    width:100%;
+                    margin-top:22px;
+                    padding:10px;
+                    border:0;
+                    border-radius:7px;
+                    background:#222230;
+                    color:white;
+                    cursor:pointer;
+                ">
+                CLOSE
+            </button>
+
+        </div>
+    </div>
+</div></body>
 </html>
