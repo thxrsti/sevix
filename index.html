@@ -386,87 +386,358 @@ const ctx = sky.getContext("2d");
 
 let stars = [];
 let comets = [];
+let clouds = [];
+
+let mouseX = 0;
+let mouseY = 0;
 
 function resizeSky() {
     sky.width = window.innerWidth;
     sky.height = window.innerHeight;
+
+    createStars();
+    createClouds();
 }
 
 window.addEventListener("resize", resizeSky);
-resizeSky();
 
-/* Stars */
-for (let i = 0; i < 180; i++) {
-    stars.push({
-        x: Math.random() * sky.width,
-        y: Math.random() * sky.height,
-        size: Math.random() * 1.8 + 0.3,
-        alpha: Math.random() * 0.8 + 0.2,
-        speed: Math.random() * 0.015 + 0.005
-    });
+window.addEventListener("mousemove", (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5);
+    mouseY = (e.clientY / window.innerHeight - 0.5);
+});
+
+/* =========================
+   STARS
+========================= */
+
+function createStars() {
+
+    stars = [];
+
+    for (let i = 0; i < 260; i++) {
+
+        stars.push({
+            x: Math.random() * sky.width,
+            y: Math.random() * sky.height,
+            size: Math.random() * 1.8 + 0.3,
+            alpha: Math.random() * 0.8 + 0.2,
+            twinkle: Math.random() * 0.02 + 0.003,
+            depth: Math.random() * 1.5 + 0.3
+        });
+    }
 }
 
-/* Create a comet */
-function createComet() {
-    comets.push({
-        x: Math.random() * sky.width,
-        y: -50,
-        length: Math.random() * 100 + 60,
-        speed: Math.random() * 5 + 4,
-        angle: Math.PI / 4,
-        life: 1
-    });
+/* =========================
+   CLOUDS
+========================= */
+
+function createClouds() {
+
+    clouds = [];
+
+    for (let i = 0; i < 7; i++) {
+
+        clouds.push({
+            x: Math.random() * sky.width,
+            y: sky.height * (0.35 + Math.random() * 0.35),
+            width: Math.random() * 400 + 250,
+            height: Math.random() * 100 + 60,
+            speed: Math.random() * 0.15 + 0.03,
+            depth: Math.random() * 0.5 + 0.2
+        });
+    }
 }
 
-/* New comet every few seconds */
-setInterval(createComet, 1800);
+/* =========================
+   MOON
+========================= */
 
-function animateSky() {
+function drawMoon() {
 
-    ctx.clearRect(0, 0, sky.width, sky.height);
+    const moonX =
+        sky.width * 0.78 +
+        mouseX * 12;
 
-    /* Stars */
-    for (const star of stars) {
+    const moonY =
+        sky.height * 0.20 +
+        mouseY * 8;
 
-        star.alpha += star.speed;
+    /* Glow */
 
-        if (star.alpha > 1 || star.alpha < 0.15) {
-            star.speed *= -1;
+    const glow =
+        ctx.createRadialGradient(
+            moonX,
+            moonY,
+            10,
+            moonX,
+            moonY,
+            180
+        );
+
+    glow.addColorStop(
+        0,
+        "rgba(170,210,255,0.35)"
+    );
+
+    glow.addColorStop(
+        0.5,
+        "rgba(100,150,255,0.12)"
+    );
+
+    glow.addColorStop(
+        1,
+        "rgba(30,60,150,0)"
+    );
+
+    ctx.fillStyle = glow;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        moonX,
+        moonY,
+        180,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    /* Moon */
+
+    const moon =
+        ctx.createRadialGradient(
+            moonX - 20,
+            moonY - 20,
+            5,
+            moonX,
+            moonY,
+            65
+        );
+
+    moon.addColorStop(
+        0,
+        "#ffffff"
+    );
+
+    moon.addColorStop(
+        0.6,
+        "#d7e7ff"
+    );
+
+    moon.addColorStop(
+        1,
+        "#7f9ed0"
+    );
+
+    ctx.fillStyle = moon;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        moonX,
+        moonY,
+        65,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    /* Moon shadow */
+
+    ctx.fillStyle =
+        "rgba(5,12,35,0.35)";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        moonX + 22,
+        moonY - 10,
+        60,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+}
+
+/* =========================
+   NEBULA
+========================= */
+
+function drawNebula() {
+
+    const gradient =
+        ctx.createRadialGradient(
+            sky.width * 0.45,
+            sky.height * 0.65,
+            0,
+            sky.width * 0.45,
+            sky.height * 0.65,
+            sky.width * 0.65
+        );
+
+    gradient.addColorStop(
+        0,
+        "rgba(50,90,220,0.18)"
+    );
+
+    gradient.addColorStop(
+        0.5,
+        "rgba(80,40,180,0.10)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+    ctx.fillStyle = gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        sky.width,
+        sky.height
+    );
+}
+
+/* =========================
+   CLOUDS
+========================= */
+
+function drawClouds() {
+
+    for (const cloud of clouds) {
+
+        cloud.x += cloud.speed;
+
+        if (cloud.x - cloud.width > sky.width) {
+            cloud.x = -cloud.width;
         }
+
+        const x =
+            cloud.x +
+            mouseX * cloud.depth * 25;
+
+        const y =
+            cloud.y +
+            mouseY * cloud.depth * 15;
+
+        const gradient =
+            ctx.createRadialGradient(
+                x,
+                y,
+                10,
+                x,
+                y,
+                cloud.width
+            );
+
+        gradient.addColorStop(
+            0,
+            "rgba(90,120,190,0.10)"
+        );
+
+        gradient.addColorStop(
+            1,
+            "rgba(20,30,80,0)"
+        );
+
+        ctx.fillStyle = gradient;
 
         ctx.beginPath();
 
-        ctx.arc(
-            star.x,
-            star.y,
-            star.size,
+        ctx.ellipse(
+            x,
+            y,
+            cloud.width,
+            cloud.height,
+            0,
             0,
             Math.PI * 2
         );
 
-        ctx.fillStyle =
-            `rgba(170,205,255,${star.alpha})`;
-
         ctx.fill();
     }
+}
 
-    /* Comets */
-    for (let i = comets.length - 1; i >= 0; i--) {
+/* =========================
+   COMETS
+========================= */
 
-        const comet = comets[i];
+function createComet() {
 
-        comet.x += Math.cos(comet.angle) * comet.speed;
-        comet.y += Math.sin(comet.angle) * comet.speed;
+    comets.push({
 
-        comet.life -= 0.004;
+        x:
+            Math.random() *
+            sky.width,
+
+        y:
+            -100,
+
+        length:
+            Math.random() *
+            180 +
+            100,
+
+        speed:
+            Math.random() *
+            5 +
+            5,
+
+        angle:
+            Math.PI /
+            (Math.random() * 5 + 3),
+
+        life: 1,
+
+        width:
+            Math.random() * 2 + 2
+    });
+}
+
+setInterval(
+    createComet,
+    1600
+);
+
+/* =========================
+   SHOOTING STAR
+========================= */
+
+function drawComets() {
+
+    for (
+        let i = comets.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const comet =
+            comets[i];
+
+        comet.x +=
+            Math.cos(comet.angle) *
+            comet.speed;
+
+        comet.y +=
+            Math.sin(comet.angle) *
+            comet.speed;
+
+        comet.life -= 0.006;
 
         const tailX =
             comet.x -
-            Math.cos(comet.angle) * comet.length;
+            Math.cos(comet.angle) *
+            comet.length;
 
         const tailY =
             comet.y -
-            Math.sin(comet.angle) * comet.length;
+            Math.sin(comet.angle) *
+            comet.length;
 
         const gradient =
             ctx.createLinearGradient(
@@ -478,12 +749,17 @@ function animateSky() {
 
         gradient.addColorStop(
             0,
-            `rgba(120,200,255,${comet.life})`
+            `rgba(220,245,255,${comet.life})`
         );
 
         gradient.addColorStop(
-            0.4,
-            `rgba(80,130,255,${comet.life * 0.5})`
+            0.25,
+            `rgba(100,190,255,${comet.life * 0.8})`
+        );
+
+        gradient.addColorStop(
+            0.7,
+            `rgba(70,100,255,${comet.life * 0.3})`
         );
 
         gradient.addColorStop(
@@ -493,41 +769,131 @@ function animateSky() {
 
         ctx.beginPath();
 
-        ctx.moveTo(comet.x, comet.y);
-        ctx.lineTo(tailX, tailY);
+        ctx.moveTo(
+            comet.x,
+            comet.y
+        );
 
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 3;
+        ctx.lineTo(
+            tailX,
+            tailY
+        );
+
+        ctx.strokeStyle =
+            gradient;
+
+        ctx.lineWidth =
+            comet.width;
 
         ctx.stroke();
 
-        /* Bright comet head */
+        /* Bright head */
+
         ctx.beginPath();
 
         ctx.arc(
             comet.x,
             comet.y,
-            3,
+            4,
             0,
             Math.PI * 2
         );
 
         ctx.fillStyle =
-            `rgba(210,240,255,${comet.life})`;
+            `rgba(240,250,255,${comet.life})`;
 
         ctx.fill();
 
         if (
             comet.life <= 0 ||
-            comet.x > sky.width + 200 ||
             comet.y > sky.height + 200
         ) {
-            comets.splice(i, 1);
+
+            comets.splice(
+                i,
+                1
+            );
         }
     }
-
-    requestAnimationFrame(animateSky);
 }
+
+/* =========================
+   STARS
+========================= */
+
+function drawStars() {
+
+    for (const star of stars) {
+
+        star.alpha +=
+            star.twinkle;
+
+        if (
+            star.alpha > 1 ||
+            star.alpha < 0.15
+        ) {
+
+            star.twinkle *= -1;
+        }
+
+        const x =
+            star.x +
+            mouseX *
+            star.depth *
+            15;
+
+        const y =
+            star.y +
+            mouseY *
+            star.depth *
+            10;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            star.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            `rgba(180,220,255,${star.alpha})`;
+
+        ctx.fill();
+    }
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+function animateSky() {
+
+    ctx.clearRect(
+        0,
+        0,
+        sky.width,
+        sky.height
+    );
+
+    drawNebula();
+
+    drawStars();
+
+    drawMoon();
+
+    drawClouds();
+
+    drawComets();
+
+    requestAnimationFrame(
+        animateSky
+    );
+}
+
+resizeSky();
 
 animateSky();
 </script></body>
