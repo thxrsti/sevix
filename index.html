@@ -130,12 +130,84 @@ async function loadProfile(){
   profile=data;
 }
 async function loadMembers(){
-  const {data,error}=await sb.from('profiles').select('id,username,avatar_url,status').order('username');
-  if(error){console.error(error);return}
+  const {data,error}=await sb
+    .from('profiles')
+    .select('id,username,avatar_url,status')
+    .order('username');
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
   $('membersTitle').textContent=`MEMBERS — ${(data||[]).length}`;
+
   $('membersList').innerHTML=(data||[]).map(p=>{
-    const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc((p.username||'?')[0].toUpperCase());
-    return `<div class="member"><div class="member-avatar">${avatar}</div><div><div>${esc(p.username||'User')}</div><div class="online">● ${esc(p.status||'online')}</div></div></div>`
+
+    const firstLetter=esc((p.username||'?')[0].toUpperCase());
+
+    const avatar=p.avatar_url
+      ? `<img
+          src="${esc(p.avatar_url)}"
+          style="
+            width:32px;
+            height:32px;
+            min-width:32px;
+            max-width:32px;
+            min-height:32px;
+            max-height:32px;
+            border-radius:50%;
+            object-fit:cover;
+            display:block;
+          "
+        >`
+      : firstLetter;
+
+    return `
+      <div
+        class="member"
+        style="
+          display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:12px;
+          height:40px;
+        "
+      >
+
+        <div
+          class="member-avatar"
+          style="
+            width:32px;
+            height:32px;
+            min-width:32px;
+            max-width:32px;
+            min-height:32px;
+            max-height:32px;
+            flex:0 0 32px;
+            border-radius:50%;
+            overflow:hidden;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#6d5dfc;
+          "
+        >
+          ${avatar}
+        </div>
+
+        <div style="min-width:0;">
+          <div style="font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            ${esc(p.username||'User')}
+          </div>
+
+          <div class="online">
+            ● ${esc(p.status||'online')}
+          </div>
+        </div>
+
+      </div>
+    `;
   }).join('');
 }
 function renderAttachment(m){
