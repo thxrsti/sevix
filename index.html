@@ -197,7 +197,26 @@ async function loadProfile(){
   if(error){console.error(error);return}
   profile=data;
 }
-async function loadMembers(){
+async function openMemberProfile(userId){
+    const {data,error}=await sb
+        .from('profiles')
+        .select('username,avatar_url,bio,custom_status,role')
+        .eq('id',userId)
+        .maybeSingle();
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    if(!data)return;
+
+    alert(
+        data.username +
+        "\nRole: " +
+        (data.role || 'member')
+    );
+}async function loadMembers(){
   const {data,error}=await sb
     .from('profiles')
     .select('id,username,avatar_url,status,role')
@@ -232,15 +251,7 @@ async function loadMembers(){
       : firstLetter;
 
     return `
-      <div
-        class="member"
-        style="
-          display:flex;
-          align-items:center;
-          gap:10px;
-          margin-bottom:12px;
-          height:40px;
-        "
+      <div class="member" onclick="openMemberProfile('${p.id}')">
       >
 
         <div
