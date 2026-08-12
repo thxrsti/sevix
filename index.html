@@ -210,6 +210,24 @@ async function openMemberProfile(userId){
     }
 
     if(!data)return;$('memberName').textContent = data.username || 'User';
+    const {data:viewer}=await sb
+    .from('profiles')
+    .select('role')
+    .eq('id',session.user.id)
+    .maybeSingle();
+
+const canManageRoles =
+    viewer &&
+    (viewer.role === 'owner' || viewer.role === 'admin');
+
+$('memberRoleSelect').style.display =
+    canManageRoles ? 'block' : 'none';
+
+$('saveMemberRole').style.display =
+    canManageRoles ? 'block' : 'none';
+
+$('memberRoleSelect').value =
+    data.role || 'member';
 
 $('memberRole').textContent =
     'Role: ' + ((data.role || 'member').replace('_',' ')).toUpperCase();
@@ -1010,7 +1028,41 @@ animateSky();
                     font-size:12px;
                     margin-top:5px;
                  ">
-            </div>
+            </div><select id="memberRoleSelect"
+    style="
+        display:none;
+        margin-top:12px;
+        width:100%;
+        padding:10px;
+        border-radius:7px;
+        background:#191922;
+        color:white;
+        border:1px solid #333344;
+    "
+>
+    <option value="member">Member</option>
+    <option value="vip">VIP</option>
+    <option value="trial_staff">Trial Staff</option>
+    <option value="admin">Admin</option>
+    <option value="owner">Owner</option>
+</select>
+
+<button id="saveMemberRole"
+    style="
+        display:none;
+        margin-top:8px;
+        width:100%;
+        padding:10px;
+        border:0;
+        border-radius:7px;
+        background:#6d5dfc;
+        color:white;
+        font-weight:bold;
+        cursor:pointer;
+    "
+>
+    SAVE ROLE
+</button>
 
             <div id="memberStatus"
                  style="
@@ -1045,5 +1097,13 @@ animateSky();
 
         </div>
     </div>
-</div></body>
+</div><script>
+document.getElementById('saveMemberRole').addEventListener('click', async () => {
+
+    const selectedRole = document.getElementById('memberRoleSelect').value;
+
+    alert('Selected role: ' + selectedRole);
+
+});
+</script></body>
 </html>
