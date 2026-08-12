@@ -1,117 +1,245 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sevix</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b0b10;color:#fff;font-family:Arial,sans-serif;height:100vh;overflow:hidden}.app{display:flex;height:100vh}
+*{box-sizing:border-box}body{margin:0;background:#0b0b10;color:#fff;font-family:Arial,sans-serif;height:100vh;overflow:hidden}
+button,input,textarea{font:inherit}.app{display:flex;height:100vh}
 .servers{width:72px;background:#08080c;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:12px;border-right:1px solid #1b1b24}.server{width:48px;height:48px;border-radius:16px;background:#181822;display:grid;place-items:center;font-weight:bold;cursor:pointer}.server.active,.server:hover{background:#6d5dfc;border-radius:12px}
 .channels{width:240px;background:#111118;border-right:1px solid #1b1b24}.server-name{height:60px;padding:20px;font-size:18px;font-weight:bold;border-bottom:1px solid #1b1b24}.channel-title{padding:20px 15px 8px;color:#77778a;font-size:12px;font-weight:bold}.channel{padding:10px 18px;color:#a6a6b5;cursor:pointer}.channel:hover,.channel.active{background:#1c1c27;color:#fff}
-.chat{flex:1;display:flex;flex-direction:column;background:#0e0e14}.chat-header{height:60px;border-bottom:1px solid #1b1b24;display:flex;align-items:center;padding:0 20px;font-weight:bold}.chat-header span{color:#77778a;margin-right:8px}.top-actions{margin-left:auto}.top-actions button{background:#191922;color:#fff;border:1px solid #30303b;border-radius:7px;padding:8px 12px;cursor:pointer}
-.messages{flex:1;padding:20px;overflow-y:auto}.message{display:flex;gap:12px;margin-bottom:18px}.avatar,.member-avatar{background:#6d5dfc;border-radius:50%;display:grid;place-items:center;font-weight:bold;flex:none}.avatar{width:40px;height:40px}.member-avatar{width:32px;height:32px}.message-name{font-weight:bold}.message-time{color:#666675;font-size:11px;margin-left:8px}.message-text{color:#c4c4cf;margin-top:4px}.chat-input{padding:15px 20px}.chat-input form{display:flex;gap:8px}.chat-input input{flex:1;padding:14px;border-radius:8px;border:0;outline:0;background:#191922;color:#fff}.send{border:0;border-radius:8px;padding:0 18px;background:#6d5dfc;color:#fff;font-weight:bold;cursor:pointer}
+.chat{flex:1;display:flex;flex-direction:column;background:#0e0e14;min-width:0}.chat-header{height:60px;border-bottom:1px solid #1b1b24;display:flex;align-items:center;padding:0 20px;font-weight:bold}.chat-header span{color:#77778a;margin-right:8px}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions button{background:#191922;color:#fff;border:1px solid #30303b;border-radius:7px;padding:8px 12px;cursor:pointer}
+.messages{flex:1;padding:20px;overflow-y:auto}.message{display:flex;gap:12px;margin-bottom:18px;position:relative}.avatar,.member-avatar{background:#6d5dfc;border-radius:50%;display:grid;place-items:center;font-weight:bold;flex:none;overflow:hidden}.avatar{width:40px;height:40px}.avatar img,.member-avatar img{width:100%;height:100%;object-fit:cover}.message-body{min-width:0;max-width:min(720px,80%)}.message-name{font-weight:bold}.message-time{color:#666675;font-size:11px;margin-left:8px}.message-text{color:#c4c4cf;margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}.message-actions{display:none;margin-left:8px;vertical-align:middle}.message:hover .message-actions{display:inline}.delete-btn{border:0;background:#26171b;color:#ff7580;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px}
+.attachment{margin-top:8px}.attachment img{display:block;max-width:420px;max-height:320px;border-radius:9px;border:1px solid #2c2c38}.file-link{display:inline-flex;align-items:center;gap:8px;background:#191922;border:1px solid #30303b;color:#fff;text-decoration:none;border-radius:8px;padding:10px 12px}.file-meta{color:#77778a;font-size:11px;margin-top:4px}
+.chat-input{padding:15px 20px}.chat-input form{display:flex;gap:8px;align-items:center}.chat-input input[type=text]{flex:1;padding:14px;border-radius:8px;border:0;outline:0;background:#191922;color:#fff}.file-btn{width:44px;height:44px;border:1px solid #30303b;border-radius:8px;background:#191922;color:#fff;cursor:pointer;font-size:20px}.send{border:0;border-radius:8px;padding:0 18px;height:44px;background:#6d5dfc;color:#fff;font-weight:bold;cursor:pointer}.selected-file{display:none;padding:6px 20px;color:#a9a9b8;font-size:12px}.selected-file.show{display:block}
 .members{width:220px;background:#111118;border-left:1px solid #1b1b24;padding:20px 15px}.members-title{color:#77778a;font-size:12px;font-weight:bold;margin-bottom:15px}.member{display:flex;align-items:center;gap:10px;margin-bottom:15px}.online{color:#55d68a;font-size:10px}
-.modal{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:center;justify-content:center}.modal.open{display:flex}.box{width:min(420px,90%);background:#111118;border:1px solid #30303b;border-radius:12px;padding:24px}.box h2{margin:0 0 16px}.box input{width:100%;margin:7px 0;padding:12px;background:#191922;border:1px solid #30303b;border-radius:7px;color:#fff}.box button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:7px;background:#6d5dfc;color:#fff;font-weight:bold;cursor:pointer}.box .secondary{background:#191922}.error{color:#ff6570;margin-top:10px;font-size:13px}
-@media(max-width:900px){.members{display:none}}@media(max-width:650px){.channels{display:none}.servers{width:60px}}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:center;justify-content:center}.modal.open{display:flex}.box{width:min(460px,92%);background:#111118;border:1px solid #30303b;border-radius:12px;padding:24px;box-shadow:0 20px 60px #000}.box h2{margin:0 0 16px}.box input,.box textarea{width:100%;margin:7px 0;padding:12px;background:#191922;border:1px solid #30303b;border-radius:7px;color:#fff;outline:0}.box textarea{min-height:90px;resize:vertical}.box button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:7px;background:#6d5dfc;color:#fff;font-weight:bold;cursor:pointer}.box .secondary{background:#191922}.error{color:#ff6570;margin-top:10px;font-size:13px}.profile-card{border-radius:12px;overflow:hidden;background:#171720;border:1px solid #30303b}.banner{height:110px;background:linear-gradient(135deg,#6d5dfc,#181822);background-size:cover;background-position:center}.profile-content{padding:16px}.profile-avatar{width:72px;height:72px;margin-top:-52px;border-radius:50%;border:4px solid #171720;background:#6d5dfc;overflow:hidden;display:grid;place-items:center;font-size:24px;font-weight:bold}.profile-avatar img{width:100%;height:100%;object-fit:cover}.profile-name{font-size:20px;font-weight:bold;margin-top:8px}.profile-bio{color:#aaaabd;margin-top:8px;white-space:pre-wrap}.profile-status{color:#55d68a;font-size:12px;margin-top:8px}
+.close-x{float:right;background:#191922!important;width:auto!important;padding:6px 10px!important;margin:0!important}.hint{font-size:12px;color:#77778a;margin-top:8px}
+@media(max-width:900px){.members{display:none}}@media(max-width:650px){.channels{display:none}.servers{width:60px}.message-body{max-width:90%}}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="servers"><div class="server active">S</div><div class="server">+</div></div>
-<div class="channels"><div class="server-name">SEVIX</div><div class="channel-title">TEXT CHANNELS</div><div class="channel active"># general</div><div class="channel"># gaming</div><div class="channel"># memes</div><div class="channel-title">VOICE CHANNELS</div><div class="channel">🔊 General</div><div class="channel">🔊 Gaming</div></div>
-<div class="chat"><div class="chat-header"><span>#</span> general<div class="top-actions"><button id="authBtn">LOGIN</button></div></div><div id="messages" class="messages"></div><div class="chat-input"><form id="messageForm"><input id="messageInput" maxlength="500" placeholder="Message #general"><button class="send">SEND</button></form></div></div>
-<div class="members"><div class="members-title" id="membersTitle">MEMBERS — 0</div><div id="membersList"></div></div>
+  <div class="servers"><div class="server active">S</div><div class="server">+</div></div>
+  <div class="channels">
+    <div class="server-name">SEVIX</div>
+    <div class="channel-title">TEXT CHANNELS</div>
+    <div class="channel active"># general</div><div class="channel"># gaming</div><div class="channel"># memes</div>
+    <div class="channel-title">VOICE CHANNELS</div>
+    <div class="channel">🔊 General</div><div class="channel">🔊 Gaming</div>
+  </div>
+  <div class="chat">
+    <div class="chat-header"><span>#</span> general
+      <div class="top-actions"><button id="profileBtn">PROFILE</button><button id="authBtn">LOGIN</button></div>
+    </div>
+    <div id="messages" class="messages"></div>
+    <div id="selectedFile" class="selected-file"></div>
+    <div class="chat-input">
+      <form id="messageForm">
+        <button type="button" class="file-btn" id="fileBtn" title="Attach a file">📎</button>
+        <input id="fileInput" type="file" hidden accept="image/*,.pdf,.txt,.zip,.rar,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.mp3,.mp4">
+        <input id="messageInput" type="text" maxlength="500" placeholder="Message #general">
+        <button class="send">SEND</button>
+      </form>
+    </div>
+  </div>
+  <div class="members"><div class="members-title" id="membersTitle">MEMBERS — 0</div><div id="membersList"></div></div>
 </div>
-<div class="modal" id="authModal"><div class="box"><h2 id="authTitle">Login to Sevix</h2><input id="displayName" placeholder="Display name" style="display:none"><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button id="authSubmit">LOGIN</button><button id="switchAuth" class="secondary">Create an account</button><div id="authError" class="error"></div></div></div>
+
+<div class="modal" id="authModal"><div class="box">
+  <h2 id="authTitle">Login to Sevix</h2>
+  <input id="displayName" placeholder="Display name" style="display:none">
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button id="authSubmit">LOGIN</button><button id="switchAuth" class="secondary">Create an account</button>
+  <div id="authError" class="error"></div>
+</div></div>
+
+<div class="modal" id="profileModal"><div class="box">
+  <button class="close-x" id="profileClose">✕</button>
+  <h2>Edit your profile</h2>
+  <div class="profile-card">
+    <div id="editBanner" class="banner"></div>
+    <div class="profile-content">
+      <div id="editAvatar" class="profile-avatar">?</div>
+      <input id="profileUsername" placeholder="Display name">
+      <textarea id="profileBio" maxlength="300" placeholder="Tell people about yourself..."></textarea>
+      <input id="profileStatus" maxlength="80" placeholder="Custom status">
+      <input id="profileAccent" type="color" value="#6d5dfc" title="Accent colour">
+      <input id="avatarFile" type="file" accept="image/*">
+      <div class="hint">Profile picture: image only.</div>
+      <input id="bannerFile" type="file" accept="image/*">
+      <div class="hint">Banner: image only.</div>
+      <button id="saveProfile">SAVE PROFILE</button>
+      <div id="profileError" class="error"></div>
+    </div>
+  </div>
+</div></div>
+
 <script>
 const SUPABASE_URL='https://ctjmlzcghygeyaheiefn.supabase.co';
 const SUPABASE_KEY='sb_publishable_YeRe8DwJGeQt10muYTVtUA_GsNXO3dL';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const BUCKET='sevix-files';
 let session=null,profile=null,currentChannel=null,isSignup=false;
+
 const $=id=>document.getElementById(id);
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-function openAuth(){ $('authModal').classList.add('open'); $('authError').textContent=''; }
-function closeAuth(){ $('authModal').classList.remove('open'); }
-function updateAuthUI(){ $('authBtn').textContent=session?'LOG OUT':'LOGIN'; }
+function fmtSize(n){if(!n)return '';if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(1)+' MB';}
+function openModal(id){$(id).classList.add('open')}function closeModal(id){$(id).classList.remove('open')}
+function updateAuthUI(){$('authBtn').textContent=session?'LOG OUT':'LOGIN'}
 
 async function loadProfile(){
- if(!session){profile=null;return;}
- const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
- if(error){console.error(error);return}
- profile=data;
+  if(!session){profile=null;return}
+  const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+  if(error){console.error(error);return}
+  profile=data;
 }
 async function loadMembers(){
- const {data,error}=await sb.from('profiles').select('id,username,avatar_url,status').order('username');
- if(error){console.error(error);return}
- $('membersTitle').textContent=`MEMBERS — ${(data||[]).length}`;
- $('membersList').innerHTML=(data||[]).map(p=>`<div class="member"><div class="member-avatar">${esc((p.username||'?')[0].toUpperCase())}</div><div><div>${esc(p.username||'User')}</div><div class="online">● ${esc(p.status||'online')}</div></div></div>`).join('');
+  const {data,error}=await sb.from('profiles').select('id,username,avatar_url,status').order('username');
+  if(error){console.error(error);return}
+  $('membersTitle').textContent=`MEMBERS — ${(data||[]).length}`;
+  $('membersList').innerHTML=(data||[]).map(p=>{
+    const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc((p.username||'?')[0].toUpperCase());
+    return `<div class="member"><div class="member-avatar">${avatar}</div><div><div>${esc(p.username||'User')}</div><div class="online">● ${esc(p.status||'online')}</div></div></div>`
+  }).join('');
+}
+function renderAttachment(m){
+  if(!m.file_url)return '';
+  const name=esc(m.file_name||'file');
+  const type=m.file_type||'';
+  if(type.startsWith('image/')) return `<div class="attachment"><a href="${esc(m.file_url)}" target="_blank" rel="noopener"><img src="${esc(m.file_url)}" alt="${name}"></a><div class="file-meta">${name} · ${fmtSize(m.file_size)}</div></div>`;
+  return `<div class="attachment"><a class="file-link" href="${esc(m.file_url)}" target="_blank" rel="noopener">📎 ${name}</a><div class="file-meta">${fmtSize(m.file_size)}</div></div>`;
 }
 async function loadMessages(){
- if(!currentChannel){$('messages').innerHTML='<div style="color:#777">No text channel is configured yet.</div>';return}
- const {data,error}=await sb.from('messages').select('id,content,user_id,created_at,profiles(username,avatar_url)').eq('channel_id',currentChannel).order('created_at',{ascending:true}).limit(100);
- if(error){console.error(error);$('messages').innerHTML='<div style="color:#ff6570">Could not load messages.</div>';return}
- $('messages').innerHTML=(data||[]).map(m=>`<div class="message"><div class="avatar">${esc((m.profiles?.username||'?')[0].toUpperCase())}</div><div><div><span class="message-name">${esc(m.profiles?.username||'User')}</span><span class="message-time">${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></div><div class="message-text">${esc(m.content)}</div></div></div>`).join('');
- $('messages').scrollTop=$('messages').scrollHeight;
+  if(!currentChannel){$('messages').innerHTML='<div style="color:#777">No text channel is configured yet.</div>';return}
+  const {data,error}=await sb.from('messages').select('id,content,user_id,created_at,file_url,file_name,file_type,file_size,profiles(username,avatar_url)').eq('channel_id',currentChannel).order('created_at',{ascending:true}).limit(100);
+  if(error){console.error(error);$('messages').innerHTML='<div style="color:#ff6570">Could not load messages.</div>';return}
+  $('messages').innerHTML=(data||[]).map(m=>{
+    const avatar=m.profiles?.avatar_url?`<img src="${esc(m.profiles.avatar_url)}">`:esc((m.profiles?.username||'?')[0].toUpperCase());
+    const del=(session&&m.user_id===session.user.id)?`<button class="delete-btn message-actions" onclick="deleteMessage(${m.id},'${esc(m.file_url||'')}')">Delete</button>`:'';
+    return `<div class="message"><div class="avatar">${avatar}</div><div class="message-body"><div><span class="message-name">${esc(m.profiles?.username||'User')}</span><span class="message-time">${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>${del}</div>${m.content?`<div class="message-text">${esc(m.content)}</div>`:''}${renderAttachment(m)}</div></div>`;
+  }).join('');
+  $('messages').scrollTop=$('messages').scrollHeight;
 }
+async function deleteMessage(id,fileUrl){
+  if(!session)return;
+  if(!confirm('Delete this message?'))return;
+  const {error}=await sb.from('messages').delete().eq('id',id).eq('user_id',session.user.id);
+  if(error){alert(error.message);return}
+  if(fileUrl){
+    const marker=`/storage/v1/object/public/${BUCKET}/`;
+    const i=fileUrl.indexOf(marker);
+    if(i>=0){const path=decodeURIComponent(fileUrl.slice(i+marker.length));await sb.storage.from(BUCKET).remove([path]);}
+  }
+  await loadMessages();
+}
+window.deleteMessage=deleteMessage;
+
 async function findGeneral(){
- const {data,error}=await sb.from('channels').select('id,name,type').eq('name','general').eq('type','text').limit(1).maybeSingle();
- if(error){console.error(error);return}
- if(data)currentChannel=data.id;
- await loadMessages();
+  const {data,error}=await sb.from('channels').select('id,name,type').eq('name','general').eq('type','text').limit(1).maybeSingle();
+  if(error){console.error(error);return}
+  if(data)currentChannel=data.id;
+  await loadMessages();
 }
-async function finishLogin(){
- await loadProfile();closeAuth();updateAuthUI();await loadMembers();await findGeneral();
-}
+async function finishLogin(){await loadProfile();closeModal('authModal');updateAuthUI();await loadMembers();await findGeneral();}
 async function signIn(){
- const email=$('email').value.trim(),password=$('password').value;
- const {data,error}=await sb.auth.signInWithPassword({email,password});
- if(error){$('authError').textContent=error.message;return}
- session=data.session;await finishLogin();
+  const email=$('email').value.trim(),password=$('password').value;
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
+  if(error){$('authError').textContent=error.message;return}
+  session=data.session;await finishLogin();
 }
 async function signUp(){
- const display=$('displayName').value.trim(),email=$('email').value.trim(),password=$('password').value;
- if(!display){$('authError').textContent='Enter a display name.';return}
- const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:display}}});
- if(error){$('authError').textContent=error.message;return}
- if(!data.session){
-   const {data:loginData,error:loginError}=await sb.auth.signInWithPassword({email,password});
-   if(loginError){$('authError').textContent=loginError.message;return}
-   session=loginData.session;
- }else session=data.session;
- const {data:existing}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
- if(!existing){
-   const {data:p,error:pError}=await sb.from('profiles').insert({id:session.user.id,username:display,avatar_url:'',status:'online'}).select().single();
-   if(pError){$('authError').textContent=pError.message;return}
-   profile=p;
- }else{
-   const {data:p,error:pError}=await sb.from('profiles').update({username:display,status:'online'}).eq('id',session.user.id).select().single();
-   if(pError){$('authError').textContent=pError.message;return}
-   profile=p;
- }
- await finishLogin();
+  const display=$('displayName').value.trim(),email=$('email').value.trim(),password=$('password').value;
+  if(!display){$('authError').textContent='Enter a display name.';return}
+  const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:display}}});
+  if(error){$('authError').textContent=error.message;return}
+  if(!data.session){
+    const {data:loginData,error:loginError}=await sb.auth.signInWithPassword({email,password});
+    if(loginError){$('authError').textContent=loginError.message;return}
+    session=loginData.session;
+  }else session=data.session;
+  const {data:existing}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+  if(!existing){
+    const {data:p,error:pError}=await sb.from('profiles').insert({id:session.user.id,username:display,avatar_url:'',banner_url:'',bio:'',custom_status:'',accent_color:'#6d5dfc',status:'online'}).select().single();
+    if(pError){$('authError').textContent=pError.message;return} profile=p;
+  }else{
+    const {data:p,error:pError}=await sb.from('profiles').update({username:display,status:'online'}).eq('id',session.user.id).select().single();
+    if(pError){$('authError').textContent=pError.message;return}profile=p;
+  }
+  await finishLogin();
 }
-$('authBtn').onclick=async()=>{if(session){await sb.auth.signOut();session=null;profile=null;updateAuthUI();await loadMembers();}else openAuth();};
-$('switchAuth').onclick=()=>{
- isSignup=!isSignup;
- $('authTitle').textContent=isSignup?'Create your Sevix account':'Login to Sevix';
- $('authSubmit').textContent=isSignup?'CREATE ACCOUNT':'LOGIN';
- $('displayName').style.display=isSignup?'block':'none';
- $('switchAuth').textContent=isSignup?'Back to login':'Create an account';
- $('authError').textContent='';
- $('authSubmit').onclick=isSignup?signUp:signIn;
-};
+async function uploadProfileImage(file,kind){
+  if(!file)return profile?.[kind+'_url']||'';
+  if(!file.type.startsWith('image/'))throw new Error('Profile images must be image files.');
+  if(file.size>5*1024*1024)throw new Error('Profile images must be under 5 MB.');
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+  const path=`${session.user.id}/profile-${kind}-${Date.now()}.${ext}`;
+  const {error}=await sb.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
+  if(error)throw error;
+  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+}
+async function saveProfile(){
+  if(!session)return;
+  $('profileError').textContent='';
+  try{
+    const username=$('profileUsername').value.trim();if(!username)throw new Error('Display name cannot be empty.');
+    const avatar=await uploadProfileImage($('avatarFile').files[0],'avatar');
+    const banner=await uploadProfileImage($('bannerFile').files[0],'banner');
+    const updates={username,bio:$('profileBio').value.trim(),custom_status:$('profileStatus').value.trim(),accent_color:$('profileAccent').value,avatar_url:avatar,banner_url:banner};
+    const {data,error}=await sb.from('profiles').update(updates).eq('id',session.user.id).select().single();
+    if(error)throw error;
+    profile=data;document.documentElement.style.setProperty('--accent',profile.accent_color||'#6d5dfc');
+    closeModal('profileModal');await loadMembers();await loadMessages();
+  }catch(e){$('profileError').textContent=e.message||String(e)}
+}
+function openProfile(){
+  if(!session){openModal('authModal');return}
+  $('profileUsername').value=profile?.username||'';
+  $('profileBio').value=profile?.bio||'';
+  $('profileStatus').value=profile?.custom_status||'';
+  $('profileAccent').value=profile?.accent_color||'#6d5dfc';
+  $('editAvatar').innerHTML=profile?.avatar_url?`<img src="${esc(profile.avatar_url)}">`:esc((profile?.username||'?')[0].toUpperCase());
+  $('editBanner').style.backgroundImage=profile?.banner_url?`url("${profile.banner_url}")`:'linear-gradient(135deg,#6d5dfc,#181822)';
+  $('avatarFile').value='';$('bannerFile').value='';$('profileError').textContent='';openModal('profileModal');
+}
+
+$('authBtn').onclick=async()=>{if(session){await sb.auth.signOut();session=null;profile=null;updateAuthUI();await loadMembers();await loadMessages()}else openModal('authModal')};
+$('profileBtn').onclick=openProfile;
+$('profileClose').onclick=()=>closeModal('profileModal');
+$('saveProfile').onclick=saveProfile;
+$('switchAuth').onclick=()=>{isSignup=!isSignup;$('authTitle').textContent=isSignup?'Create your Sevix account':'Login to Sevix';$('authSubmit').textContent=isSignup?'CREATE ACCOUNT':'LOGIN';$('displayName').style.display=isSignup?'block':'none';$('switchAuth').textContent=isSignup?'Back to login':'Create an account';$('authError').textContent='';$('authSubmit').onclick=isSignup?signUp:signIn};
 $('authSubmit').onclick=signIn;
+
+$('fileBtn').onclick=()=>{if(!session){openModal('authModal');return}$('fileInput').click()};
+$('fileInput').onchange=()=>{const f=$('fileInput').files[0];$('selectedFile').textContent=f?`📎 ${f.name} · ${fmtSize(f.size)}`:'';$('selectedFile').classList.toggle('show',!!f)};
+
 $('messageForm').onsubmit=async e=>{
  e.preventDefault();
- if(!session){openAuth();return}
+ if(!session){openModal('authModal');return}
  if(!currentChannel){alert('The general channel has not been created yet.');return}
- const content=$('messageInput').value.trim();if(!content)return;
- const {error}=await sb.from('messages').insert({channel_id:currentChannel,user_id:session.user.id,content});
- if(error){alert(error.message);return}
- $('messageInput').value='';await loadMessages();
+ const content=$('messageInput').value.trim(),file=$('fileInput').files[0];
+ if(!content&&!file)return;
+ try{
+   let file_url='',file_name='',file_type='',file_size=null;
+   if(file){
+     if(file.size>25*1024*1024)throw new Error('Files must be under 25 MB.');
+     const ext=(file.name.split('.').pop()||'bin').toLowerCase();
+     const path=`${session.user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+     const {error:upErr}=await sb.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type||'application/octet-stream'});
+     if(upErr)throw upErr;
+     file_url=sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;file_name=file.name;file_type=file.type||'application/octet-stream';file_size=file.size;
+   }
+   const {error}=await sb.from('messages').insert({channel_id:currentChannel,user_id:session.user.id,content:content||'',file_url,file_name,file_type,file_size});
+   if(error)throw error;
+   $('messageInput').value='';$('fileInput').value='';$('selectedFile').classList.remove('show');$('selectedFile').textContent='';await loadMessages();
+ }catch(err){alert(err.message||String(err))}
 };
-sb.auth.onAuthStateChange(async(_event,s)=>{session=s;updateAuthUI();if(session){await loadProfile();await loadMembers();}});
-(async()=>{session=(await sb.auth.getSession()).data.session;updateAuthUI();await loadMembers();await findGeneral();})();
+
+sb.auth.onAuthStateChange(async(_event,s)=>{session=s;updateAuthUI();if(session){await loadProfile();await loadMembers();await findGeneral()}});
+(async()=>{session=(await sb.auth.getSession()).data.session;updateAuthUI();if(session)await loadProfile();await loadMembers();await findGeneral()})();
 </script>
 </body>
 </html>
