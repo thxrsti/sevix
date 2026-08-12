@@ -1,1 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sevix</title>
 
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #0b0b10;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+/* SERVER BAR */
+
+.servers {
+    width: 72px;
+    background: #08080c;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    border-right: 1px solid #1b1b24;
+}
+
+.server {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: #181822;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.server:hover {
+    border-radius: 12px;
+    background: #6d5dfc;
+}
+
+.server.active {
+    background: #6d5dfc;
+}
+
+/* CHANNEL BAR */
+
+.channels {
+    width: 240px;
+    background: #111118;
+    border-right: 1px solid #1b1b24;
+    display: flex;
+    flex-direction: column;
+}
+
+.server-name {
+    height: 60px;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid #1b1b24;
+}
+
+.channel-title {
+    padding: 20px 15px 8px;
+    color: #77778a;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.channel {
+    padding: 10px 18px;
+    color: #a6a6b5;
+    cursor: pointer;
+}
+
+.channel:hover,
+.channel.active {
+    background: #1c1c27;
+    color: white;
+}
+
+/* MAIN CHAT */
+
+.chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0e0e14;
+}
+
+.chat-header {
+    height: 60px;
+    border-bottom: 1px solid #1b1b24;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-weight: bold;
+}
+
+.chat-header span {
+    color: #77778a;
+    margin-right: 8px;
+}
+
+.messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.message {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #6d5dfc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.message-name {
+    font-weight: bold;
+}
+
+.message-time {
+    color: #666675;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.message-text {
+    color: #c4c4cf;
+    margin-top: 4px;
+}
+
+.chat-input {
+    padding: 15px 20px;
+}
+
+.chat-input input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: #191922;
+    color: white;
+}
+
+/* MEMBERS */
+
+.members {
+    width: 220px;
+    background: #111118;
+    border-left: 1px solid #1b1b24;
+    padding: 20px 15px;
+}
+
+.members-title {
+    color: #77778a;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.member {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.member-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #272733;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.online {
+    color: #55d68a;
+    font-size: 10px;
+}
+
+/* MOBILE */
+
+@media(max-width:900px) {
+    .members {
+        display: none;
+    }
+}
+
+@media(max-width:650px) {
+    .channels {
+        display: none;
+    }
+
+    .servers {
+        width: 60px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SERVERS -->
+
+    <div class="servers">
+
+        <div class="server active">
+            S
+        </div>
+
+        <div class="server">
+            +
+        </div>
+
+    </div>
+
+    <!-- CHANNELS -->
+
+    <div class="channels">
+
+        <div class="server-name">
+            SEVIX
+        </div>
+
+        <div class="channel-title">
+            TEXT CHANNELS
+        </div>
+
+        <div class="channel active">
+            # general
+        </div>
+
+        <div class="channel">
+            # gaming
+        </div>
+
+        <div class="channel">
+            # memes
+        </div>
+
+        <div class="channel-title">
+            VOICE CHANNELS
+        </div>
+
+        <div class="channel">
+            🔊 General
+        </div>
+
+        <div class="channel">
+            🔊 Gaming
+        </div>
+
+    </div>
+
+    <!-- CHAT -->
+
+    <div class="chat">
+
+        <div class="chat-header">
+            <span>#</span> general
+        </div>
+
+        <div class="messages">
+
+            <div class="message">
+
+                <div class="avatar">
+                    S
+                </div>
+
+                <div>
+
+                    <div>
+                        <span class="message-name">
+                            Sevix
+                        </span>
+
+                        <span class="message-time">
+                            Today at 13:15
+                        </span>
+                    </div>
+
+                    <div class="message-text">
+                        Welcome to Sevix! 👋
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="message">
+
+                <div class="avatar">
+                    R
+                </div>
+
+                <div>
+
+                    <div>
+                        <span class="message-name">
+                            rAiN
+                        </span>
+
+                        <span class="message-time">
+                            Today at 13:16
+                        </span>
+                    </div>
+
+                    <div class="message-text">
+                        This is going to be sick 🔥
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="chat-input">
+
+            <input
+                type="text"
+                placeholder="Message #general"
+            >
+
+        </div>
+
+    </div>
+
+    <!-- MEMBERS -->
+
+    <div class="members">
+
+        <div class="members-title">
+            ONLINE — 2
+        </div>
+
+        <div class="member">
+
+            <div class="member-avatar">
+                S
+            </div>
+
+            <div>
+                <div>Sevix</div>
+                <div class="online">● Online</div>
+            </div>
+
+        </div>
+
+        <div class="member">
+
+            <div class="member-avatar">
+                R
+            </div>
+
+            <div>
+                <div>rAiN</div>
+                <div class="online">● Online</div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
