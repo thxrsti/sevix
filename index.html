@@ -164,7 +164,26 @@ async function loadProfile(){
   if(error){console.error(error);return}
   profile=data;
 }
-async function loadMembers(){
+async function openMemberProfile(userId){
+    const {data,error}=await sb
+        .from('profiles')
+        .select('username,avatar_url,bio,status')
+        .eq('id',userId)
+        .maybeSingle();
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    if(!data)return;
+
+    alert(
+        data.username +
+        "\n\nStatus: " + (data.status || 'online') +
+        "\n\n" + (data.bio || 'No bio yet.')
+    );
+}async function loadMembers(){
   const {data,error}=await sb
     .from('profiles')
     .select('id,username,avatar_url,status')
@@ -200,7 +219,7 @@ async function loadMembers(){
 
     return `
       <div
-        class="member"
+        class="member" onclick="openMemberProfile('${p.id}')"
         style="
           display:flex;
           align-items:center;
